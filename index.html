@@ -110,6 +110,13 @@ textarea.wide{width:100%;min-height:90px}
 .key.del{color:var(--red);border-color:#5a2526}
 .fnum.delarmed,.key.del.delarmed{border-color:var(--red);animation:blinkr 1s linear infinite}
 @keyframes blinkr{0%,49%{background:#2a0e0f;color:var(--red)}50%,100%{background:var(--red);color:#fff}}
+.keys4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.keys4 .key{min-width:0;padding:16px 4px;font-size:15px;border-width:2px}
+.keys4 .key.locate{background:#e9e9ee;color:#111;border-color:#e9e9ee}
+.keys4 .key.clear{background:#8d8d98;color:#111;border-color:#8d8d98}
+.keys4 .key.del{background:var(--red);color:#fff;border-color:var(--red)}
+.keys4 .key.record{background:var(--acc);color:#111;border-color:var(--acc)}
+.keys4 .key:hover{filter:brightness(1.1)}
 #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#222228;border:1px solid var(--line);padding:10px 16px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20;max-width:90vw}
 #toast.show{opacity:1}
 </style>
@@ -415,8 +422,12 @@ function fxBtn(key){
 }
 function chTab(){
   const ch=curCh(),n=ch.scenes.length;
-  let h=`<div class="sec"><div class="keys" style="margin-top:0"><button class="key locate" data-act="locate">LOCATE</button><button class="key" data-act="clear">CLEAR</button><button class="key del${ui.delArmed?' delarmed':''}" data-act="delete">DELETE</button></div>
-  <div class="help" style="margin-top:6px">${ui.delArmed?'지울 채널 번호(무대 아래 1–10)를 누르세요. 취소하려면 DELETE를 다시 누르세요.':'LOCATE: 선택한 조명 켜기 · CLEAR: 전부 끄기 · DELETE → 채널 번호: 그 채널 비우기'}</div></div>
+  let h=`<div class="sec"><div class="keys4">
+    <button class="key locate" data-act="locate">LOCATE</button>
+    <button class="key clear" data-act="clear">CLEAR</button>
+    <button class="key del${ui.delArmed?' delarmed':''}" data-act="delete">DELETE</button>
+    <button class="key record${ui.armed?' armed':''}" data-act="record">RECORD</button></div>
+  <div class="help" style="margin-top:8px">${ui.armed?'<b style="color:var(--acc)">저장할 채널 번호(무대 아래 1–10)를 누르세요.</b> 취소: RECORD 다시 누르기':ui.delArmed?'<b style="color:var(--red)">지울 채널 번호(무대 아래 1–10)를 누르세요.</b> 취소: DELETE 다시 누르기':'LOCATE 선택한 조명 켜기 · CLEAR 전부 끄기 · DELETE→채널 번호 그 채널 비우기 · RECORD→채널 번호 그 채널에 겹쳐 저장'}</div></div>
   <div class="sec"><div class="sech">조명 번호 <span class="help">— 눌러서 선택/해제 (무대 그림을 눌러도 돼요)</span></div>
   <div class="sech">배경</div>
   <div class="edge">무대 안쪽</div><div class="bggrid">${BG.map(n=>fxBtn('b'+n)).join('')}</div><div class="edge">관객석</div>
@@ -425,8 +436,6 @@ function chTab(){
   h+=`<div class="sec"><div class="sech">RGB</div>
   <div class="rgb">${['R','G','B'].map((L,j)=>`<span class="l" style="color:${['#ff6b6b','#5ee07a','#5aa2ff'][j]}">${L}</span><input type="range" min="0" max="255" value="${ui.color[j]}" data-rgb="${j}" style="accent-color:${['#ff4d4d','#3ddc5f','#3d8bff'][j]}"><input type="number" min="0" max="255" value="${ui.color[j]}" data-rgb="${j}" class="mono">`).join('')}</div>
   <div class="sum mono" id="sum" style="margin-top:12px">${sumHtml(curScene())}</div></div>`;
-  h+=`<div class="sec"><div class="keys"><button class="key record${ui.armed?' armed':''}" data-act="record">RECORD</button></div>
-  <div class="help" style="margin-top:6px">${ui.armed?'저장할 채널 번호(무대 아래 1–10)를 누르세요. 취소하려면 RECORD를 다시 누르세요.':'RECORD → 채널 번호: 지금 켜진 상태를 그 채널에 겹쳐 저장'}</div></div>`;
   h+=`<div class="sec"><div class="sech">채널 ${ui.ch+1} <span class="badge${n>1?'':' gray'}">${n?`장면 ${n}개 겹침`:'비어 있음'}</span></div>
   <div class="field"><label>이름</label><input data-f="name" value="${esc(ch.name)}" placeholder="예: 후렴 빨강, 드럼 솔로"></div>
   <div class="field"><label>메모</label><input data-f="memo" value="${esc(ch.memo)}" placeholder="예: 2절 끝에서 사용"></div>`;
