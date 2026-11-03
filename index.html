@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>밴드부 조명 큐시트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script id="lightdata" type="application/json">null</script>
+<style id="app-style">
+:root{--bg:#0b0b0d;--panel:#141417;--panel2:#1c1c21;--line:#2a2a31;--text:#ececef;--dim:#8c8c97;--acc:#f5c518;--red:#ef5350}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text)}
+body{font-family:'Noto Sans KR',system-ui,sans-serif;font-size:14px;line-height:1.45}
+button{font:inherit;color:inherit;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 10px;cursor:pointer;white-space:nowrap}
+button:hover{border-color:#4b4b56}
+button.on{background:var(--acc);color:#111;border-color:var(--acc)}
+button.pri{background:var(--acc);color:#111;border-color:var(--acc);font-weight:700}
+button.danger{color:var(--red)}
+button.armed{background:var(--red);color:#fff;border-color:var(--red)}
+button.sm{padding:3px 8px;font-size:12px}
+input,textarea,select{font:inherit;color:var(--text);background:#0e0e11;border:1px solid var(--line);border-radius:6px;padding:6px 8px;min-width:0}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--acc)}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+header{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(11,11,13,.96);z-index:5}
+header h1{font-size:15px;margin:0 10px 0 0;font-weight:700;display:flex;align-items:center;gap:8px}
+header h1 .dot{width:10px;height:10px;border-radius:50%;background:var(--acc);box-shadow:0 0 12px var(--acc)}
+#songtitle{width:180px}
+.grow{flex:1}
+#savest{font-size:12px;color:var(--dim)}
+#savest.dirty{color:var(--acc)}
+main{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(380px,1fr);gap:16px;padding:16px;max-width:1600px;margin:0 auto}
+@media(max-width:1000px){main{grid-template-columns:1fr}}
+.stage{position:sticky;top:66px;align-self:start}
+@media(max-width:1000px){.stage{position:static}}
+canvas{width:100%;height:auto;display:block;border-radius:10px;border:1px solid var(--line);background:#050506;cursor:pointer}
+.stbar{display:flex;gap:6px;align-items:center;margin:0 0 8px;flex-wrap:wrap}
+.viewlabel{font-size:12px;color:var(--dim)}
+.fwrap{margin-top:10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px}
+.fhead{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px;color:var(--dim)}
+.faders{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px}
+.fader{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.fnum{padding:2px 0;width:100%;font-size:12px}
+.vfader{writing-mode:vertical-lr;direction:rtl;height:110px;width:26px;accent-color:var(--acc);margin:0}
+.fval{font-size:12px}
+.fname{font-size:10px;color:var(--dim);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-height:14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;min-width:0}
+.tabs{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap}
+.sec{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--line)}
+.sec:first-child{border-top:0;padding-top:0;margin-top:0}
+.sech{font-size:12px;color:var(--dim);margin-bottom:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.chpick{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px}
+.chb{padding:5px 0 4px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:13px;position:relative}
+.chb .sw{width:70%;height:6px;border-radius:3px;background:#2a2a31}
+.chb i{position:absolute;top:1px;right:3px;font-style:normal;font-size:9px;color:var(--acc)}
+.chb.on i{color:#111}
+.field{display:grid;grid-template-columns:70px 1fr;gap:8px;align-items:center;margin-top:8px}
+.field label{font-size:12px;color:var(--dim)}
+.scenes{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.badge{font-size:11px;padding:2px 7px;border-radius:10px;background:#2b2410;color:var(--acc);border:1px solid #5a4a10}
+.badge.gray{background:#1c1c21;color:var(--dim);border-color:var(--line)}
+.chase{display:grid;grid-template-columns:auto 1fr auto;gap:8px 10px;align-items:center;margin-top:10px;background:#101013;border:1px solid var(--line);border-radius:8px;padding:10px}
+.chase label{font-size:12px;color:var(--dim)}
+.chase input[type=range]{width:100%;accent-color:var(--acc)}
+.chase input[type=number]{width:76px}
+.help{font-size:12px;color:var(--dim)}
+.bggrid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.pinrow{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.fx{padding:8px 0;display:flex;flex-direction:column;align-items:center;line-height:1.15;border-width:2px}
+.fx small{font-size:10px;opacity:.75}
+.fx.sel{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
+.edge{font-size:10px;color:var(--dim);text-align:center;margin:3px 0}
+.swatches{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.swatch{width:30px;height:30px;padding:0;border-radius:6px}
+.rgb{display:grid;grid-template-columns:18px 1fr 64px;gap:6px 8px;align-items:center}
+.rgb input[type=range]{width:100%}
+.rgb .l{font-weight:700;font-size:13px}
+.sum{font-size:12px;background:#0e0e11;border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:38px}
+.sum div{display:flex;gap:8px;align-items:center;padding:2px 0}
+.sum .c{width:12px;height:12px;border-radius:3px;flex:none;border:1px solid #333}
+.cues{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.cue{background:#101013;border:1px solid var(--line);border-radius:8px;padding:8px}
+.cue.on{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
+.cuetop{display:grid;grid-template-columns:auto 1fr auto;gap:6px;align-items:start}
+.cuetext{width:100%;resize:none;overflow:hidden;min-height:34px;line-height:1.45}
+.cuebtns{display:flex;gap:2px}
+.cuebtns button{padding:4px 7px;font-size:12px}
+.play{padding:6px 9px}
+.lvgrid{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:3px;margin-top:6px}
+.lvgrid label{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:var(--dim)}
+.lv{width:100%;text-align:center;padding:4px 0;font-size:12px}
+.lv.set{border-color:#5a4a10;color:var(--acc)}
+.lv::placeholder{color:#55555f}
+.paste textarea{width:100%;min-height:140px;margin-bottom:6px}
+pre.out{white-space:pre-wrap;word-break:keep-all;font-size:12px;background:#0e0e11;border:1px solid var(--line);border-radius:8px;padding:12px;margin:8px 0 0;max-height:70vh;overflow:auto}
+.radio{display:flex;flex-direction:column;gap:6px}
+.radio label{display:flex;gap:8px;align-items:flex-start}
+textarea.wide{width:100%;min-height:90px}
+
+.keys{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.key{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 14px;font-weight:700;letter-spacing:.04em;font-family:'JetBrains Mono',monospace;min-width:96px}
+.key small{font-family:'Noto Sans KR',sans-serif;font-weight:400;font-size:11px;letter-spacing:0;opacity:.8}
+.key.locate{background:#22232a;border-color:#4a4b57}
+.key.record{background:var(--acc);color:#111;border-color:var(--acc);flex:1}
+.fnum.armed,.key.record.armed{border-color:var(--acc);animation:blink 1s linear infinite}
+@keyframes blink{0%,49%{background:#2b2306;color:var(--acc)}50%,100%{background:var(--acc);color:#111}}
+.fader .sc{font-size:10px;color:var(--acc);min-height:13px}
+.chbtn{padding:14px 0;font-size:15px;font-weight:600}
+.key.del{color:var(--red);border-color:#5a2526}
+.fnum.delarmed,.key.del.delarmed{border-color:var(--red);animation:blinkr 1s linear infinite}
+@keyframes blinkr{0%,49%{background:#2a0e0f;color:var(--red)}50%,100%{background:var(--red);color:#fff}}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#222228;border:1px solid var(--line);padding:10px 16px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20;max-width:90vw}
+#toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+  <h1><span class="dot"></span>조명 큐시트</h1>
+  <select id="songsel" title="곡 선택"></select>
+  <input id="songtitle" placeholder="곡 제목">
+  <button data-act="song-new">+ 새 곡</button>
+  <button data-act="song-dup">곡 복제</button>
+  <button data-act="song-del" class="danger" id="songdel">곡 삭제</button>
+  <span class="grow"></span>
+  <span id="savest"></span>
+  <button class="pri" data-act="save" id="savebtn">저장</button>
+</header>
+<main>
+  <section class="stage">
+    <div class="stbar" id="stbar"><span class="viewlabel" id="viewlabel"></span></div>
+    <canvas id="cv" width="1200" height="860"></canvas>
+    <div class="fwrap">
+      <div class="fhead" id="fhead">플레이백 1–10 · 번호 = 채널 선택 / RECORD 후 누르면 그 채널에 저장</div>
+      <div class="faders" id="faders"></div>
+    </div>
+  </section>
+  <section class="panel">
+    <div class="tabs" id="tabs">
+      <button data-tab="ch">채널 편집</button>
+      <button data-tab="cue">플레이백</button>
+    </div>
+    <div id="pbody"></div>
+  </section>
+</main>
+<div id="toast"></div>
+</div>
+<script id="app-script">
+(function(){
+"use strict";
+/* ---------- 원본 소스 보관 (공유 저장 시 재조립용, 렌더 전에 캡처) ---------- */
+const SRC={style:document.getElementById('app-style').outerHTML,body:document.getElementById('app').outerHTML,script:document.getElementById('app-script').outerHTML};
+const HEAD_STATIC='<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>밴드부 조명 큐시트</title>\n<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">';
+
+/* ---------- 무대 정의 ---------- */
+const BG=[11,4,5,16,12,13,14,15];
+const BG_TOP=[11,4,5,16];
+const BGX={11:150,4:450,5:750,16:1050,12:150,13:450,14:750,15:1050};
+const POOLY=[260,590];
+const PINS=[{n:4,label:'EG2',name:'일렉기타2'},{n:5,label:'B',name:'베이스'},{n:6,label:'D',name:'드럼'},{n:7,label:'V',name:'보컬'},{n:8,label:'EG1',name:'일렉기타1'},{n:9,label:'K1',name:'키보드'}];
+const PINPOS={4:[343,447],5:[512,437],6:[688,187],7:[628,630],8:[855,455],9:[1027,318]};
+const ALLKEYS=[...BG.map(n=>'b'+n),...PINS.map(p=>'p'+p.n)];
+const Z=[0,0,0];
+const PRESETS=[[255,0,0],[255,90,0],[255,180,0],[255,255,0],[0,255,0],[0,255,180],[0,255,255],[0,90,255],[0,0,255],[140,0,255],[255,0,255],[255,0,120],[255,255,255],[255,200,140]];
+const KEY='band-light-cuesheet-v1';
+
+const $=s=>document.querySelector(s);
+const $$=s=>Array.from(document.querySelectorAll(s));
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,9);
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+
+/* ---------- 데이터 ---------- */
+function newScene(){return {bg:{},pin:{}};}
+function newChannel(){return {name:'',memo:'',scenes:[],fade:0,speed:1};}
+function newSong(t){return {id:uid(),title:t||'새 곡',channels:Array.from({length:10},newChannel),cues:[{id:uid(),text:'',lv:{}}]};}
+function defaultState(){return {v:1,updatedAt:0,speedMode:'loop',cur:0,songs:[newSong('곡 1')]};}
+function norm(s){
+  if(!s||typeof s!=='object')return defaultState();
+  if(!Array.isArray(s.songs)||!s.songs.length)s.songs=[newSong('곡 1')];
+  s.songs.forEach(normSong);
+  if(s.speedMode!=='step')s.speedMode='loop';
+  s.cur=clamp(+s.cur||0,0,s.songs.length-1);
+  return s;
+}
+function normSong(g){
+  g.id=g.id||uid();g.title=g.title||'새 곡';
+  if(!Array.isArray(g.channels))g.channels=[];
+  while(g.channels.length<10)g.channels.push(newChannel());
+  g.channels.length=10;
+  g.channels.forEach(c=>{c.name=c.name||'';c.memo=c.memo||'';if(!Array.isArray(c.scenes))c.scenes=[];c.scenes.forEach(sc=>{sc.bg=sc.bg||{};sc.pin=sc.pin||{};});c.scenes=c.scenes.filter(sc=>Object.keys(sc.bg).length||Object.keys(sc.pin).length);c.fade=+c.fade||0;c.speed=+c.speed||1;});
+  if(!Array.isArray(g.cues)||!g.cues.length)g.cues=[{id:uid(),text:'',lv:{}}];
+  g.cues.forEach(q=>{q.id=q.id||uid();q.text=q.text||'';q.lv=q.lv||{};});
+  return g;
+}
+
+let state,dirty=false;
+(function load(){
+  let emb=null,loc=null;
+  try{emb=JSON.parse(document.getElementById('lightdata').textContent);}catch(e){}
+  try{loc=JSON.parse(localStorage.getItem(KEY));}catch(e){}
+  if(loc&&(!emb||(loc.updatedAt||0)>(emb.updatedAt||0))){state=norm(loc);dirty=true;}
+  else if(emb){state=norm(emb);}
+  else state=defaultState();
+})();
+
+const ui={delArmed:false,armed:false,prog:newScene(),tab:'ch',ch:0,scene:-1,sel:new Set(),view:'edit',play:false,cueIdx:-1,color:[255,0,0],faders:Array(10).fill(0),pasteOpen:false,delArm:false};
+const song=()=>state.songs[state.cur];
+const curCh=()=>song().channels[ui.ch];
+const curScene=()=>ui.prog;
+
+let localTimer=null;
+function touch(){
+  state.updatedAt=Date.now();dirty=true;
+  clearTimeout(localTimer);
+  localTimer=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}},250);
+  renderSave();
+}
+
+/* ---------- 색 계산 ---------- */
+function getCol(sc,key){return (key[0]==='b'?sc.bg:sc.pin)[key.slice(1)];}
+function setCol(sc,key,c){const o=key[0]==='b'?sc.bg:sc.pin;if(c)o[key.slice(1)]=c.slice();else delete o[key.slice(1)];}
+function stepTime(ch){const sp=Math.max(0.05,+ch.speed||1);return state.speedMode==='loop'?sp/Math.max(1,ch.scenes.length):sp;}
+function chColors(ch,t){
+  const n=ch.scenes.length,out={};
+  if(!n)return out;
+  if(n<2){for(const k of ALLKEYS){const c=getCol(ch.scenes[0],k);if(c)out[k]=c;}return out;}
+  const ph=t/stepTime(ch),i=Math.floor(ph)%n,fr=ph-Math.floor(ph);
+  const fp=clamp((+ch.fade||0)/100,0,1);
+  const a=ch.scenes[i],b=ch.scenes[(i+1)%n];
+  let k=0;if(fp>0&&fr>1-fp)k=(fr-(1-fp))/fp;
+  for(const key of ALLKEYS){const ca=getCol(a,key)||Z,cb=getCol(b,key)||Z;const c=[0,1,2].map(j=>ca[j]+(cb[j]-ca[j])*k);if(c[0]+c[1]+c[2]>0.5)out[key]=c;}
+  return out;
+}
+function currentColors(t){
+  const s=song();
+  if(ui.view==='edit'){
+    const ch=curCh();
+    return chColors({scenes:[curScene()]},t);
+  }
+  const out={};
+  s.channels.forEach((ch,i)=>{
+    const lv=ui.faders[i]/100;if(lv<=0)return;
+    const c=chColors(ch,t);
+    for(const k in c){const v=c[k].map(x=>x*lv),o=out[k];out[k]=o?o.map((x,j)=>Math.max(x,v[j])):v;}
+  });
+  return out;
+}
+const rgbStr=c=>`rgb(${c.map(v=>Math.round(clamp(v,0,255))).join(',')})`;
+const lum=c=>(0.299*c[0]+0.587*c[1]+0.114*c[2]);
+
+/* ---------- 캔버스 ---------- */
+const cv=$('#cv'),ctx=cv.getContext('2d'),W=1200,H=860;
+const STAGE={x:16,y:56,w:1168,h:748};
+const bgRow=n=>BG_TOP.includes(n)?0:1;
+const markerPos=n=>[BGX[n],bgRow(n)?832:28];
+function glow(x,y,r,c,stops){
+  const g=ctx.createRadialGradient(x,y,0,x,y,r);
+  const [R,G,B]=c.map(v=>Math.round(clamp(v,0,255)));
+  for(const [o,a] of stops)g.addColorStop(o,`rgba(${R},${G},${B},${a})`);
+  ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2);
+}
+function shape(kind,a,stroke,lw){
+  ctx.strokeStyle=stroke;ctx.lineWidth=lw;ctx.beginPath();
+  if(kind==='rect')ctx.rect(a[0],a[1],a[2],a[3]);
+  else if(kind==='circ')ctx.arc(a[0],a[1],a[2],0,Math.PI*2);
+  else if(kind==='rot'){ctx.save();ctx.translate(a[0],a[1]);ctx.rotate(a[4]*Math.PI/180);ctx.rect(-a[2]/2,-a[3]/2,a[2],a[3]);ctx.restore();}
+  ctx.stroke();
+}
+function label(t,x,y,size,col,rot){
+  ctx.save();ctx.translate(x,y);if(rot)ctx.rotate(rot*Math.PI/180);
+  ctx.fillStyle=col;ctx.font=`600 ${size}px "JetBrains Mono", monospace`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(t,0,0);ctx.restore();
+}
+const PINSHAPE={4:['circ',[343,447,55]],5:['circ',[512,437,55]],6:['rect',[591,100,194,175]],7:['circ',[628,630,55]],8:['circ',[855,455,55]],9:['rot',[1027,318,240,70,27]]};
+function draw(cols){
+  ctx.globalCompositeOperation='source-over';
+  ctx.fillStyle='#040405';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#08080a';ctx.fillRect(STAGE.x,STAGE.y,STAGE.w,STAGE.h);
+  renderLight(cols);
+  ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+  try{ctx.filter='blur(14px)';}catch(e){}
+  ctx.drawImage(LC,0,0,W,H);
+  ctx.restore();
+  ctx.fillStyle='rgba(4,4,5,.88)';ctx.fillRect(0,0,W,STAGE.y);ctx.fillRect(0,STAGE.y+STAGE.h,W,H-STAGE.y-STAGE.h);
+  ctx.strokeStyle='#26262c';ctx.lineWidth=1;ctx.strokeRect(STAGE.x+.5,STAGE.y+.5,STAGE.w-1,STAGE.h-1);
+  // 앰프 (참고용)
+  const amp='rgba(255,255,255,.13)',ampT='rgba(255,255,255,.22)';
+  [['Laney',288,97,100,71],['orange',408,97,100,71],['Line 6',826,98,100,72],['JMC',583,723,119,70]].forEach(a=>{shape('rect',a.slice(1),amp,1.5);label(a[0],a[1]+a[3]/2,a[2]+a[4]/2,15,ampT);});
+  shape('rect',[525,100,55,92],amp,1.5);label('JMC',552,146,13,ampT,-90);
+  shape('rot',[380,688,150,55,45],amp,1.5);label('Inter M',380,688,14,ampT,45);
+  shape('rot',[893,677,150,55,-45],amp,1.5);label('Inter M',893,677,14,ampT,-45);
+  // 핀 대상(악기)
+  const editing=ui.view==='edit';
+  for(const p of PINS){
+    const [k,a]=PINSHAPE[p.n],key='p'+p.n,sel=editing&&ui.sel.has(key);
+    shape(k,a,sel?'#f5c518':'rgba(255,255,255,.42)',sel?4:2);
+    const [x,y]=PINPOS[p.n],c=cols[key];
+    const tc=c&&lum(c)>150?'rgba(0,0,0,.85)':'rgba(255,255,255,.9)';
+    label(p.label,x,y-9,22,tc);label('핀 '+p.n,x,y+15,13,c&&lum(c)>150?'rgba(0,0,0,.6)':'rgba(255,255,255,.5)');
+  }
+  // 배경 조명 마커
+  for(const n of BG){
+    const [x,y]=markerPos(n),key='b'+n,c=cols[key],sel=editing&&ui.sel.has(key);
+    ctx.fillStyle=c?rgbStr(c):'#16161a';ctx.fillRect(x-28,y-16,56,32);
+    ctx.strokeStyle=sel?'#f5c518':'#3a3a42';ctx.lineWidth=sel?4:1.5;ctx.strokeRect(x-28,y-16,56,32);
+    label(String(n),x,y+1,17,c&&lum(c)>140?'#000':'#ddd');
+  }
+  label('무대 안쪽',62,28,13,'#6c6c76');label('관객석',62,832,13,'#6c6c76');
+  label('◀ 배경 조명 ▶',600,28,0,'transparent');
+}
+/* 광량 맵: 조명마다 무게 맵을 미리 계산하고, 매 프레임 색×무게를 더한 뒤 부드럽게 포화 */
+const LS=4,LW=W/LS,LH=Math.ceil(H/LS),LC=document.createElement('canvas');LC.width=LW;LC.height=LH;
+const LX=LC.getContext('2d'),LIMG=LX.createImageData(LW,LH),ACC=new Float32Array(LW*LH*3);
+const smooth=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t);};
+const WMAP={};
+(function(){
+  for(const n of BG){
+    const cx=BGX[n],cy=POOLY[bgRow(n)],sx=150,sy=125,m=new Float32Array(LW*LH);
+    for(let j=0;j<LH;j++)for(let i=0;i<LW;i++){const dx=(i+.5)*LS-cx,dy=(j+.5)*LS-cy;m[j*LW+i]=0.42*Math.exp(-(dx*dx/(2*sx*sx)+dy*dy/(2*sy*sy)));}
+    WMAP['b'+n]=m;
+  }
+  for(const p of PINS){
+    const [cx,cy]=PINPOS[p.n],R=p.n===6?115:p.n===9?100:82,m=new Float32Array(LW*LH);
+    for(let j=0;j<LH;j++)for(let i=0;i<LW;i++){const d=Math.hypot((i+.5)*LS-cx,(j+.5)*LS-cy);m[j*LW+i]=1.9*(1-smooth(R*.5,R*1.15,d))+0.18*Math.exp(-d*d/(2*(R*1.9)*(R*1.9)));}
+    WMAP['p'+p.n]=m;
+  }
+})();
+function renderLight(cols){
+  ACC.fill(0);
+  for(const k in cols){
+    const c=cols[k],m=WMAP[k];if(!m)continue;
+    const r=c[0]/255,g=c[1]/255,b=c[2]/255;if(r+g+b<0.004)continue;
+    for(let i=0,o=0;i<m.length;i++,o+=3){const w=m[i];if(w<0.002)continue;ACC[o]+=r*w;ACC[o+1]+=g*w;ACC[o+2]+=b*w;}
+  }
+  const d=LIMG.data,K=1.25;
+  for(let i=0,o=0,q=0;i<LW*LH;i++,o+=3,q+=4){
+    d[q]=8+247*(1-Math.exp(-K*ACC[o]));d[q+1]=8+247*(1-Math.exp(-K*ACC[o+1]));d[q+2]=10+245*(1-Math.exp(-K*ACC[o+2]));d[q+3]=255;
+  }
+  LX.putImageData(LIMG,0,0);
+}
+function hit(x,y){
+  for(const n of BG){const [mx,my]=markerPos(n);if(Math.abs(x-mx)<=32&&Math.abs(y-my)<=20)return 'b'+n;}
+  if(x>=585&&x<=791&&y>=94&&y<=281)return 'p6';
+  {const dx=x-1027,dy=y-318,r=-27*Math.PI/180,rx=dx*Math.cos(r)-dy*Math.sin(r),ry=dx*Math.sin(r)+dy*Math.cos(r);if(Math.abs(rx)<128&&Math.abs(ry)<43)return 'p9';}
+  for(const n of [4,5,7,8]){const [px,py]=PINPOS[n];if(Math.hypot(x-px,y-py)<64)return 'p'+n;}
+  return null;
+}
+cv.addEventListener('click',e=>{
+  if(ui.tab!=='ch')return;
+  const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height;
+  const k=hit(x,y);if(!k)return;
+  ui.view='edit';ui.play=false;
+  if(ui.sel.has(k))ui.sel.delete(k);else ui.sel.add(k);
+  syncColorFromSel();
+  if(ui.tab!=='ch'){ui.tab='ch';renderPanel();}else refreshChBits();
+  renderStageBar();
+});
+function frame(ts){draw(currentColors(ts/1000));requestAnimationFrame(frame);}
+
+/* ---------- 렌더 ---------- */
+function renderSongs(){
+  $('#songsel').innerHTML=state.songs.map((g,i)=>`<option value="${i}"${i===state.cur?' selected':''}>${i+1}. ${esc(g.title)}</option>`).join('');
+  $('#songtitle').value=song().title;
+  const d=$('#songdel');d.textContent=ui.delArm?'한 번 더 누르면 삭제':'곡 삭제';d.classList.toggle('armed',ui.delArm);
+}
+const STANDALONE=!(window.claude&&typeof window.claude.use==='function');
+function renderSave(){
+  const el=$('#savest');
+  if(STANDALONE){el.textContent='이 브라우저에 자동 저장됨';el.classList.remove('dirty');const sb=$('#savebtn');if(sb)sb.style.display='none';return;}
+  el.textContent=dirty?'저장 안 됨 · 이 브라우저에만 임시 보관 중':'저장됨';
+  el.classList.toggle('dirty',dirty);
+}
+function renderStageBar(){
+  const ch=curCh();
+  let t;
+  if(ui.view==='edit')t='작업 중 — LOCATE로 켠 조명';
+  else t=ui.cueIdx>=0?`큐 ${ui.cueIdx+1}: ${(song().cues[ui.cueIdx]||{}).text.split('\n')[0].slice(0,30)||'(빈 줄)'}`:'페이더 출력';
+  $('#viewlabel').textContent=t;
+}
+function chSwatch(c){
+  const set=new Set();
+  c.scenes.forEach(sc=>ALLKEYS.forEach(k=>{const v=getCol(sc,k);if(v&&set.size<4)set.add(rgbStr(v));}));
+  const a=[...set];
+  if(!a.length)return '#2a2a31';
+  if(a.length===1)return a[0];
+  return `linear-gradient(90deg,${a.join(',')})`;
+}
+function renderFaders(){
+  const s=song(),edit=ui.tab==='ch';
+  $('#fhead').textContent=edit?'채널 1–10 · 번호를 눌러 선택 / RECORD 후 누르면 그 채널에 겹쳐 저장':'플레이백 페이더 1–10';
+  $('#faders').innerHTML=s.channels.map((c,i)=>edit?`<div class="fader">
+    <button class="fnum chbtn mono${ui.armed?' armed':ui.delArmed?' delarmed':i===ui.ch?' on':''}" data-edit="${i}" title="채널 ${i+1}">${i+1}</button>
+    <div class="fname" title="${esc(c.name)}">${esc(c.name)||'&nbsp;'}</div><div class="sc">${c.scenes.length?'장면 '+c.scenes.length:''}</div></div>`
+  :`<div class="fader"><div class="fnum mono" style="text-align:center;border:0">${i+1}</div>
+    <input type="range" class="vfader" min="0" max="100" step="1" value="${ui.faders[i]}" data-fader="${i}" aria-label="채널 ${i+1} 페이더">
+    <div class="fval mono" id="fv${i}">${ui.faders[i]}%</div>
+    <div class="fname" id="fn${i}" title="${esc(c.name)}">${esc(c.name)||'&nbsp;'}</div><div class="sc">${c.scenes.length>1?'×'+c.scenes.length:''}</div></div>`).join('');
+}
+function updateFaderUI(){ui.faders.forEach((v,i)=>{const r=document.querySelector(`[data-fader="${i}"]`);if(r)r.value=v;const t=$('#fv'+i);if(t)t.textContent=v+'%';});}
+function renderPanel(){
+  $$('#tabs [data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===ui.tab));
+  const p=$('#pbody');
+  if(ui.tab==='ch')p.innerHTML=chTab();
+  else {p.innerHTML=cueTab();$$('.cuetext').forEach(grow);}
+}
+function renderAll(){renderSongs();renderSave();renderFaders();renderPanel();renderStageBar();}
+
+/* ----- 채널 편집 탭 ----- */
+function fxBtn(key){
+  const sc=curScene(),c=getCol(sc,key),n=key.slice(1);
+  const st=c?`background:${rgbStr(c)};color:${lum(c)>140?'#000':'#fff'}`:'';
+  const sub=key[0]==='p'?PINS.find(p=>p.n==n).label:'';
+  return `<button class="fx mono${ui.sel.has(key)?' sel':''}" data-fx="${key}" style="${st}">${n}${sub?`<small>${sub}</small>`:''}</button>`;
+}
+function chTab(){
+  const ch=curCh(),n=ch.scenes.length;
+  let h=`<div class="sec"><div class="keys" style="margin-top:0"><button class="key locate" data-act="locate">LOCATE</button><button class="key" data-act="clear">CLEAR</button><button class="key del${ui.delArmed?' delarmed':''}" data-act="delete">DELETE</button></div>
+  <div class="help" style="margin-top:6px">${ui.delArmed?'지울 채널 번호(무대 아래 1–10)를 누르세요. 취소하려면 DELETE를 다시 누르세요.':'LOCATE: 선택한 조명 켜기 · CLEAR: 전부 끄기 · DELETE → 채널 번호: 그 채널 비우기'}</div></div>
+  <div class="sec"><div class="sech">조명 번호 <span class="help">— 눌러서 선택/해제 (무대 그림을 눌러도 돼요)</span></div>
+  <div class="sech">배경</div>
+  <div class="edge">무대 안쪽</div><div class="bggrid">${BG.map(n=>fxBtn('b'+n)).join('')}</div><div class="edge">관객석</div>
+  <div class="sech" style="margin-top:8px">핀</div>
+  <div class="pinrow">${PINS.map(p=>fxBtn('p'+p.n)).join('')}</div></div>`;
+  h+=`<div class="sec"><div class="sech">RGB</div>
+  <div class="rgb">${['R','G','B'].map((L,j)=>`<span class="l" style="color:${['#ff6b6b','#5ee07a','#5aa2ff'][j]}">${L}</span><input type="range" min="0" max="255" value="${ui.color[j]}" data-rgb="${j}" style="accent-color:${['#ff4d4d','#3ddc5f','#3d8bff'][j]}"><input type="number" min="0" max="255" value="${ui.color[j]}" data-rgb="${j}" class="mono">`).join('')}</div>
+  <div class="sum mono" id="sum" style="margin-top:12px">${sumHtml(curScene())}</div></div>`;
+  h+=`<div class="sec"><div class="keys"><button class="key record${ui.armed?' armed':''}" data-act="record">RECORD</button></div>
+  <div class="help" style="margin-top:6px">${ui.armed?'저장할 채널 번호(무대 아래 1–10)를 누르세요. 취소하려면 RECORD를 다시 누르세요.':'RECORD → 채널 번호: 지금 켜진 상태를 그 채널에 겹쳐 저장'}</div></div>`;
+  h+=`<div class="sec"><div class="sech">채널 ${ui.ch+1} <span class="badge${n>1?'':' gray'}">${n?`장면 ${n}개 겹침`:'비어 있음'}</span></div>
+  <div class="field"><label>이름</label><input data-f="name" value="${esc(ch.name)}" placeholder="예: 후렴 빨강, 드럼 솔로"></div>
+  <div class="field"><label>메모</label><input data-f="memo" value="${esc(ch.memo)}" placeholder="예: 2절 끝에서 사용"></div>`;
+  if(n>1){
+    h+=`<div class="chase">
+      <label>휠 A<br>페이드</label><input type="range" min="0" max="100" step="1" value="${ch.fade}" data-f="fade"><span><input type="number" min="0" max="100" step="1" value="${ch.fade}" data-f="fade" class="mono"> %</span>
+      <label>휠 B<br>속도</label><span><select data-f="speedmode" title="속도 값의 기준 (전체 곡 공통)"><option value="loop"${state.speedMode==='loop'?' selected':''}>한 바퀴 시간</option><option value="step"${state.speedMode==='step'?' selected':''}>장면당 시간</option></select> <span class="help" id="speedhelp">${speedHelp(ch)}</span></span><span><input type="number" min="0.05" step="0.05" value="${ch.speed}" data-f="speed" class="mono"> 초</span>
+    </div>`;
+  }
+  h+=`</div>`;
+  return h;
+}
+function speedHelp(ch){
+  const n=ch.scenes.length,st=stepTime(ch);
+  return state.speedMode==='loop'?`한 바퀴(장면 ${n}개 전부) 시간 · 장면당 약 ${st.toFixed(2)}초`:`장면 하나당 시간 · 한 바퀴 약 ${(st*n).toFixed(2)}초`;
+}
+function selInfo(){return ui.sel.size?`${ui.sel.size}개 선택됨`:'선택된 조명 없음';}
+function sceneGroups(sc){
+  const groups=[];
+  const add=(kind,n,c)=>{const k=kind+c.join(',');let g=groups.find(x=>x.k===k);if(!g){g={k,kind,c,ns:[]};groups.push(g);}g.ns.push(n);};
+  BG.forEach(n=>{const c=sc.bg[n];if(c)add('배경',n,c);});
+  PINS.forEach(p=>{const c=sc.pin[p.n];if(c)add('핀',p.n,c);});
+  return groups;
+}
+function pinName(n){const p=PINS.find(x=>x.n==n);return p?`${n}(${p.label})`:n;}
+function groupText(g){return `${g.kind} ${g.kind==='핀'?g.ns.map(pinName).join(', '):g.ns.join(', ')} → R${Math.round(g.c[0])} G${Math.round(g.c[1])} B${Math.round(g.c[2])}`;}
+function sumHtml(sc){
+  const gs=sceneGroups(sc);
+  if(!gs.length)return '<span class="help">아직 켜진 조명이 없어요</span>';
+  return gs.map(g=>`<div><span class="c" style="background:${rgbStr(g.c)}"></span>${esc(groupText(g))}</div>`).join('');
+}
+function refreshChBits(){
+  if(ui.tab!=='ch')return;
+  $$('.fx').forEach(b=>{b.outerHTML=fxBtn(b.dataset.fx);});
+  const s=$('#sum');if(s)s.innerHTML=sumHtml(curScene());
+  const si=$('#selinfo');if(si)si.textContent=selInfo();
+  $$('.chb').forEach(b=>{const c=song().channels[+b.dataset.ch];b.querySelector('.sw').style.background=chSwatch(c);});
+  ui.color.forEach((v,j)=>$$(`[data-rgb="${j}"]`).forEach(i=>{if(document.activeElement!==i)i.value=v;}));
+}
+function syncColorFromSel(){
+  for(const k of ui.sel){const c=getCol(curScene(),k);if(c){ui.color=c.slice();return;}}
+}
+function applyColor(){
+  if(!ui.sel.size){toast('먼저 조명을 선택하세요');return;}
+  const sc=curScene();let any=false;ui.sel.forEach(k=>{if(getCol(sc,k)){setCol(sc,k,ui.color);any=true;}});
+  if(!any)toast('선택한 조명이 꺼져 있어요. 먼저 LOCATE로 켜세요');
+  ui.view='edit';refreshChBits();renderStageBar();
+}
+
+/* ----- 가사 큐시트 탭 ----- */
+function effLevels(cues){const cur=Array(10).fill(0);return cues.map(q=>{for(let i=0;i<10;i++){if(q.lv[i]!=null)cur[i]=q.lv[i];}return cur.slice();});}
+function cueRow(q,i,prev){
+  return `<div class="cue${i===ui.cueIdx?' on':''}" data-cuerow="${i}">
+    <div class="cuetop"><button class="play" data-act="cue-play" data-i="${i}" title="이 순간 보기">▶</button>
+    <textarea class="cuetext" data-i="${i}" rows="1" placeholder="가사, 구간 이름(전주·간주) 등 자유롭게">${esc(q.text)}</textarea>
+    <div class="cuebtns"><button data-act="cue-up" data-i="${i}" title="위로">↑</button><button data-act="cue-down" data-i="${i}" title="아래로">↓</button><button data-act="cue-ins" data-i="${i}" title="아래에 줄 추가">+</button><button class="danger" data-act="cue-del" data-i="${i}" title="삭제">×</button></div></div>
+    <div class="lvgrid">${Array.from({length:10},(_,c)=>`<label><span>${c+1}</span><input class="lv mono${q.lv[c]!=null?' set':''}" inputmode="numeric" data-i="${i}" data-c="${c}" value="${q.lv[c]!=null?q.lv[c]:''}" placeholder="${prev[c]}"></label>`).join('')}</div></div>`;
+}
+function cueTab(){
+  const s=song(),eff=effLevels(s.cues);
+  let h=`<div class="sech"><button data-act="paste-toggle">${ui.pasteOpen?'붙여넣기 닫기':'가사 한 번에 붙여넣기'}</button><span class="grow"></span><button data-act="cue-add">+ 줄 추가</button></div>`;
+  if(ui.pasteOpen)h+=`<div class="paste"><textarea id="pastebox" placeholder="가사 전체를 붙여넣으세요"></textarea>
+    <div class="sech">나누는 방법 <select id="pastesplit"><option value="line">한 줄마다</option><option value="para">빈 줄(문단)마다</option><option value="whole">통째로 한 칸</option></select><button class="pri" data-act="paste-add">아래에 추가</button></div><div class="help">나눈 뒤에도 칸 안에서 자유롭게 고치고, 줄바꿈도 넣을 수 있어요.</div></div>`;
+  h+=`<div class="help" style="margin-top:8px">숫자 칸 = 그 순간 채널 1–10 페이더 %. <b>비워두면 앞의 값 유지</b>(회색 숫자), <b>0</b>을 넣으면 내림. ▶ 를 누르면 무대에 그 순간이 떠요.</div>`;
+  h+=`<div class="cues">${s.cues.map((q,i)=>cueRow(q,i,i?eff[i-1]:Array(10).fill(0))).join('')}</div>`;
+  return h;
+}
+function refreshPlaceholders(){
+  const eff=effLevels(song().cues);
+  $$('.lv').forEach(el=>{const i=+el.dataset.i,c=+el.dataset.c;el.placeholder=i?eff[i-1][c]:0;});
+}
+function grow(el){el.style.height='auto';el.style.height=el.scrollHeight+2+'px';}
+function playCue(i){
+  const s=song();if(i<0||i>=s.cues.length)return;
+  ui.cueIdx=i;ui.faders=effLevels(s.cues)[i];ui.view='mix';
+  updateFaderUI();renderStageBar();
+  $$('.cue').forEach(el=>el.classList.toggle('on',+el.dataset.cuerow===i));
+  const el=document.querySelector(`[data-cuerow="${i}"]`);if(el&&ui.tab==='cue')el.scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+
+/* ---------- 유틸 ---------- */
+let toastT;
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600);}
+async function copyText(t){
+  try{await navigator.clipboard.writeText(t);toast('복사했어요');}
+  catch(e){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand('copy');}catch(_){}ta.remove();toast(ok?'복사했어요':'복사가 막혔어요. 직접 선택해서 복사하세요');}
+}
+function cloneSong(g){const c=JSON.parse(JSON.stringify(g));c.id=uid();c.cues.forEach(q=>q.id=uid());return c;}
+function switchSong(i){state.cur=clamp(i,0,state.songs.length-1);ui.ch=0;ui.scene=-1;ui.sel.clear();ui.prog=newScene();ui.cueIdx=-1;ui.faders=Array(10).fill(0);ui.play=false;ui.armed=false;ui.view=ui.tab==='ch'?'edit':'mix';ui.delArm=false;}
+function importText(t){
+  let d;try{d=JSON.parse(t);}catch(e){toast('백업 형식이 아니에요');return;}
+  const songs=Array.isArray(d)?d:(d&&Array.isArray(d.songs)?d.songs:(d&&d.channels?[d]:null));
+  if(!songs){toast('곡 데이터를 찾지 못했어요');return;}
+  songs.forEach(g=>state.songs.push(normSong(cloneSong(g))));
+  touch();switchSong(state.songs.length-1);renderAll();toast(`${songs.length}곡을 추가했어요`);
+}
+
+/* ---------- 공유 저장 (artifact) / 다운로드 ---------- */
+let artCap=null,dlCap=null;
+try{if(window.claude&&typeof window.claude.use==='function'){window.claude.use('artifact').then(a=>{artCap=a;}).catch(()=>{});window.claude.use('downloads').then(d=>{dlCap=d;}).catch(()=>{});}}catch(e){}
+function buildHtml(){
+  const json=JSON.stringify(state).replace(/</g,'\\u003c');
+  return '<!DOCTYPE html>\n<html lang="ko">\n<head>\n'+HEAD_STATIC+'\n<script id="lightdata" type="application/json">'+json+'<\/script>\n'+SRC.style+'\n</head>\n<body>\n'+SRC.body+'\n'+SRC.script+'\n</body>\n</html>';
+}
+async function saveShared(){
+  if(!artCap){toast('이 화면에서는 페이지 저장을 쓸 수 없어요.');return;}
+  const btn=$('#savebtn');btn.disabled=true;btn.textContent='저장 중…';
+  try{
+    try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}
+    await artCap.publish(buildHtml());
+    dirty=false;renderSave();toast('저장했어요');
+  }catch(e){
+    const code=(e&&(e.code||e.name||e.message))||'';
+    if(/conflict/i.test(code))toast('다른 사람이 먼저 저장했어요. 새로 고쳐진 뒤 다시 확인하세요.');
+    else if(/not_granted|not_writer/i.test(code))toast('이 페이지에 저장할 권한이 없어요.');
+    else toast('저장 실패: '+code);
+  }finally{btn.disabled=false;btn.textContent='저장';}
+}
+async function backupDownload(){
+  const data=JSON.stringify({v:1,songs:state.songs,speedMode:state.speedMode},null,1);
+  if(!dlCap){copyText(data);toast('파일 받기를 쓸 수 없어서 텍스트로 복사했어요');return;}
+  try{await dlCap.save({filename:'조명큐시트-백업.json',data:data});}catch(e){toast('파일 받기가 취소되었거나 막혔어요');}
+}
+
+/* ---------- 이벤트 ---------- */
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act],[data-ch],[data-fx],[data-scene],[data-tab],[data-color],[data-edit]');if(!b||b.disabled)return;
+  const d=b.dataset,s=song();
+  if(d.tab){ui.tab=d.tab;ui.armed=false;ui.delArmed=false;ui.view=d.tab==='ch'?'edit':'mix';renderPanel();renderFaders();renderStageBar();return;}
+  if(d.edit!=null||d.ch!=null){
+    const t=+(d.edit!=null?d.edit:d.ch);ui.ch=t;ui.tab='ch';
+    renderFaders();
+    if(ui.delArmed){ui.delArmed=false;const n=curCh().scenes.length;curCh().scenes=[];touch();renderFaders();toast(n?`채널 ${t+1}을 비웠어요`:`채널 ${t+1}은 이미 비어 있어요`);}
+    else if(ui.armed){const sc=curScene();curCh().scenes.push(JSON.parse(JSON.stringify(sc)));ui.armed=false;touch();renderFaders();toast(`채널 ${t+1}에 저장 · 장면 ${curCh().scenes.length}개 겹침`);}
+    renderPanel();renderStageBar();return;}
+  if(d.scene!=null){ui.scene=+d.scene;ui.prog=JSON.parse(JSON.stringify(curCh().scenes[ui.scene]));ui.play=false;ui.view='edit';syncColorFromSel();renderPanel();renderStageBar();return;}
+  if(d.fx){const k=d.fx;if(ui.sel.has(k))ui.sel.delete(k);else ui.sel.add(k);ui.view='edit';ui.play=false;syncColorFromSel();refreshChBits();renderStageBar();return;}
+  if(d.color){ui.color=d.color.split(',').map(Number);applyColor();refreshChBits();return;}
+  const ch=curCh(),i=d.i!=null?+d.i:-1;
+  switch(d.act){
+    case 'view-edit':ui.view='edit';renderStageBar();break;
+    case 'view-mix':ui.view='mix';renderStageBar();break;
+    case 'play-toggle':ui.play=!ui.play;ui.view='edit';renderPanel();renderStageBar();break;
+    case 'faders-zero':ui.faders=Array(10).fill(0);ui.cueIdx=-1;ui.view='mix';updateFaderUI();renderStageBar();$$('.cue').forEach(el=>el.classList.remove('on'));break;
+    case 'cue-prev':playCue(ui.cueIdx<=0?0:ui.cueIdx-1);break;
+    case 'cue-next':playCue(Math.min(s.cues.length-1,ui.cueIdx+1));break;
+    case 'scene-del':if(ui.scene>=0&&ui.scene<ch.scenes.length){ch.scenes.splice(ui.scene,1);ui.scene=-1;if(ch.scenes.length<2)ui.play=false;touch();renderPanel();renderStageBar();}break;
+    case 'scene-left':if(ui.scene>0){const t=ch.scenes.splice(ui.scene,1)[0];ch.scenes.splice(--ui.scene,0,t);touch();renderPanel();renderStageBar();}break;
+    case 'scene-right':if(ui.scene<ch.scenes.length-1){const t=ch.scenes.splice(ui.scene,1)[0];ch.scenes.splice(++ui.scene,0,t);touch();renderPanel();renderStageBar();}break;
+    case 'selall-bg':BG.forEach(n=>ui.sel.add('b'+n));ui.view='edit';syncColorFromSel();refreshChBits();renderStageBar();break;
+    case 'selall-pin':PINS.forEach(p=>ui.sel.add('p'+p.n));ui.view='edit';syncColorFromSel();refreshChBits();renderStageBar();break;
+    case 'selnone':ui.sel.clear();refreshChBits();break;
+    case 'off':if(!ui.sel.size){toast('끌 조명을 먼저 선택하세요');break;}ui.sel.forEach(k=>setCol(curScene(),k,null));ui.view='edit';refreshChBits();renderStageBar();break;
+    case 'locate':if(!ui.sel.size){toast('켤 조명을 먼저 선택하세요');break;}ui.color=[255,255,255];ui.sel.forEach(k=>setCol(curScene(),k,ui.color));ui.view='edit';ui.play=false;refreshChBits();renderStageBar();break;
+    case 'clear':ui.prog=newScene();ui.sel.clear();ui.armed=false;ui.delArmed=false;ui.view='edit';renderPanel();renderFaders();renderStageBar();break;
+    case 'record':{const sc=curScene();if(!ui.armed&&!Object.keys(sc.bg).length&&!Object.keys(sc.pin).length){toast('켜진 조명이 없어요. LOCATE로 먼저 켜세요');break;}ui.armed=!ui.armed;ui.delArmed=false;renderPanel();renderFaders();break;}
+    case 'delete':ui.delArmed=!ui.delArmed;ui.armed=false;renderPanel();renderFaders();break;
+    case 'cue-play':playCue(i);break;
+    case 'cue-up':if(i>0){const t=s.cues.splice(i,1)[0];s.cues.splice(i-1,0,t);ui.cueIdx=-1;touch();renderPanel();}break;
+    case 'cue-down':if(i<s.cues.length-1){const t=s.cues.splice(i,1)[0];s.cues.splice(i+1,0,t);ui.cueIdx=-1;touch();renderPanel();}break;
+    case 'cue-ins':s.cues.splice(i+1,0,{id:uid(),text:'',lv:{}});touch();renderPanel();{const el=document.querySelector(`.cuetext[data-i="${i+1}"]`);if(el)el.focus();}break;
+    case 'cue-del':s.cues.splice(i,1);if(!s.cues.length)s.cues.push({id:uid(),text:'',lv:{}});ui.cueIdx=-1;touch();renderPanel();break;
+    case 'cue-add':s.cues.push({id:uid(),text:'',lv:{}});touch();renderPanel();{const el=document.querySelector(`.cuetext[data-i="${s.cues.length-1}"]`);if(el){el.focus();el.scrollIntoView({block:'center'});}}break;
+    case 'paste-toggle':ui.pasteOpen=!ui.pasteOpen;renderPanel();break;
+    case 'paste-add':{
+      const t=($('#pastebox').value||'').replace(/\r/g,'');const m=$('#pastesplit').value;
+      let parts=m==='line'?t.split('\n'):m==='para'?t.split(/\n\s*\n/):[t];
+      parts=parts.map(x=>x.replace(/^\s+|\s+$/g,'')).filter(Boolean);
+      if(!parts.length){toast('붙여넣은 가사가 없어요');break;}
+      if(s.cues.length===1&&!s.cues[0].text&&!Object.keys(s.cues[0].lv).length)s.cues=[];
+      parts.forEach(p=>s.cues.push({id:uid(),text:p,lv:{}}));
+      ui.pasteOpen=false;touch();renderPanel();toast(`${parts.length}줄 추가했어요`);break;}
+    case 'song-new':state.songs.push(newSong(`곡 ${state.songs.length+1}`));switchSong(state.songs.length-1);touch();renderAll();break;
+    case 'song-dup':{const c=cloneSong(s);c.title=s.title+' 복사본';state.songs.splice(state.cur+1,0,c);switchSong(state.cur+1);touch();renderAll();break;}
+    case 'song-del':
+      if(!ui.delArm){ui.delArm=true;renderSongs();setTimeout(()=>{ui.delArm=false;renderSongs();},3000);break;}
+      ui.delArm=false;state.songs.splice(state.cur,1);if(!state.songs.length)state.songs.push(newSong('곡 1'));switchSong(Math.min(state.cur,state.songs.length-1));touch();renderAll();break;
+    case 'save':saveShared();break;
+    case 'backup-dl':backupDownload();break;
+    case 'backup-copy':copyText(JSON.stringify({v:1,songs:state.songs,speedMode:state.speedMode}));break;
+    case 'backup-load':importText($('#importbox').value);break;
+  }
+});
+document.addEventListener('input',e=>{
+  const el=e.target,d=el.dataset,s=song();
+  if(el.id==='songtitle'){s.title=el.value;const o=$('#songsel').options[state.cur];if(o)o.textContent=`${state.cur+1}. ${el.value}`;touch();return;}
+  if(d.fader!=null){ui.faders[+d.fader]=+el.value;$('#fv'+d.fader).textContent=el.value+'%';ui.view='mix';ui.cueIdx=-1;renderStageBar();$$('.cue').forEach(x=>x.classList.remove('on'));return;}
+  if(d.f){
+    const ch=curCh();
+    if(d.f==='name'){ch.name=el.value;const fn=$$('.chbtn')[ui.ch];if(fn&&fn.nextElementSibling){fn.nextElementSibling.textContent=el.value;}}
+    else if(d.f==='memo')ch.memo=el.value;
+    else if(d.f==='speedmode'){state.speedMode=el.value==='step'?'step':'loop';const h=$('#speedhelp');if(h)h.textContent=speedHelp(ch);}
+    else if(d.f==='fade'){ch.fade=clamp(Math.round(+el.value||0),0,100);$$('[data-f="fade"]').forEach(x=>{if(x!==el)x.value=ch.fade;});}
+    else if(d.f==='speed'){const v=parseFloat(el.value);if(v>0)ch.speed=v;const h=$('#speedhelp');if(h)h.textContent=speedHelp(ch);}
+    touch();return;
+  }
+  if(d.rgb!=null){
+    const j=+d.rgb,v=clamp(Math.round(+el.value||0),0,255);ui.color[j]=v;
+    $$(`[data-rgb="${j}"]`).forEach(x=>{if(x!==el)x.value=v;});
+    if(ui.sel.size){const sc=curScene();ui.sel.forEach(k=>{if(getCol(sc,k))setCol(sc,k,ui.color);});ui.view='edit';refreshChBits();renderStageBar();}
+    return;
+  }
+  if(el.classList.contains('cuetext')){s.cues[+d.i].text=el.value;grow(el);touch();return;}
+  if(el.classList.contains('lv')){
+    const q=s.cues[+d.i],c=+d.c,raw=el.value.replace(/[^0-9]/g,'');
+    if(raw===''){delete q.lv[c];el.value='';el.classList.remove('set');}
+    else{const v=clamp(+raw,0,100);q.lv[c]=v;if(String(v)!==el.value)el.value=v;el.classList.add('set');}
+    refreshPlaceholders();touch();
+    if(ui.cueIdx===+d.i){ui.faders=effLevels(s.cues)[ui.cueIdx];updateFaderUI();}
+    return;
+  }
+});
+document.addEventListener('change',e=>{
+  const el=e.target;
+  if(el.id==='songsel'){switchSong(+el.value);renderAll();return;}
+  if(el.name==='speedmode'){state.speedMode=el.value;touch();toast('속도 기준을 바꿨어요');return;}
+  if(el.id==='importfile'&&el.files&&el.files[0]){const r=new FileReader();r.onload=()=>importText(String(r.result));r.readAsText(el.files[0]);el.value='';}
+});
+document.addEventListener('keydown',e=>{
+  const tg=e.target.tagName;if(tg==='INPUT'||tg==='TEXTAREA'||tg==='SELECT')return;
+  if(e.key==='ArrowDown'||e.key==='ArrowRight'){e.preventDefault();playCue(Math.min(song().cues.length-1,ui.cueIdx+1));}
+  else if(e.key==='ArrowUp'||e.key==='ArrowLeft'){e.preventDefault();playCue(Math.max(0,ui.cueIdx-1));}
+});
+window.addEventListener('beforeunload',()=>{try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}});
+
+renderAll();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
