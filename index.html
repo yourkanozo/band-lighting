@@ -117,6 +117,17 @@ textarea.wide{width:100%;min-height:90px}
 .keys4 .key.del{background:var(--red);color:#fff;border-color:var(--red)}
 .keys4 .key.record{background:var(--acc);color:#111;border-color:var(--acc)}
 .keys4 .key:hover{filter:brightness(1.1)}
+
+.vbtn{margin-top:4px;padding:3px 0;width:100%;font-size:11px}
+.vbtn:disabled{opacity:.3;cursor:default}
+.fx.off{background:#0e0e11;color:#55555f}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:30;padding:20px}
+#modal.show{display:flex}
+.mbox{background:var(--panel);border:1px solid var(--line);border-radius:12px;width:min(560px,100%);max-height:88vh;display:flex;flex-direction:column}
+.mhead{display:flex;gap:10px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.mscenes{overflow:auto;padding:14px;display:flex;flex-direction:column;gap:16px}
+.mscene+.mscene{border-top:1px solid var(--line);padding-top:14px}
+.mscene .fx{cursor:default}
 #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#222228;border:1px solid var(--line);padding:10px 16px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20;max-width:90vw}
 #toast.show{opacity:1}
 </style>
@@ -402,9 +413,26 @@ function renderFaders(){
   :`<div class="fader"><div class="fnum mono" style="text-align:center;border:0">${i+1}</div>
     <input type="range" class="vfader" min="0" max="100" step="1" value="${ui.faders[i]}" data-fader="${i}" aria-label="채널 ${i+1} 페이더">
     <div class="fval mono" id="fv${i}">${ui.faders[i]}%</div>
-    <div class="fname" id="fn${i}" title="${esc(c.name)}">${esc(c.name)||'&nbsp;'}</div><div class="sc">${c.scenes.length>1?'×'+c.scenes.length:''}</div></div>`).join('');
+    <div class="fname" id="fn${i}" title="${esc(c.name)}">${esc(c.name)||'&nbsp;'}</div><div class="sc">${c.scenes.length>1?'×'+c.scenes.length:''}</div><button class="sm vbtn" data-act="ch-view" data-i="${i}"${c.scenes.length?'':' disabled'}>보기</button></div>`).join('');
 }
 function updateFaderUI(){ui.faders.forEach((v,i)=>{const r=document.querySelector(`[data-fader="${i}"]`);if(r)r.value=v;const t=$('#fv'+i);if(t)t.textContent=v+'%';});}
+function cell(c,main,sub){
+  const st=c?`background:${rgbStr(c)};color:${lum(c)>140?'#000':'#fff'};border-color:${rgbStr(c)}`:'';
+  return `<div class="fx mono${c?'':' off'}" style="${st}">${main}${sub?`<small>${sub}</small>`:''}</div>`;
+}
+function openView(i){
+  const c=song().channels[i],n=c.scenes.length;
+  let m=document.getElementById('modal');
+  if(!m){m=document.createElement('div');m.id='modal';document.body.appendChild(m);
+    m.addEventListener('click',e=>{if(e.target===m||e.target.closest('[data-close]'))m.classList.remove('show');});}
+  const info=n>1?`장면 ${n}개 겹침 · 페이드 ${c.fade}% · ${state.speedMode==='loop'?'한 바퀴':'장면당'} ${c.speed}초`:n===1?'장면 1개':'비어 있음';
+  m.innerHTML=`<div class="mbox"><div class="mhead"><b>채널 ${i+1}${c.name?' · '+esc(c.name):''}</b><span class="help">${info}</span><span class="grow"></span><button data-close>닫기</button></div>
+  <div class="mscenes">${c.scenes.map((sc,k)=>`<div class="mscene">${n>1?`<div class="sech">장면 ${k+1}</div>`:''}
+    <div class="edge">무대 안쪽</div><div class="bggrid">${BG.map(b=>cell(sc.bg[b],b)).join('')}</div><div class="edge">관객석</div>
+    <div class="pinrow" style="margin-top:6px">${PINS.map(p=>cell(sc.pin[p.n],p.n,p.label)).join('')}</div></div>`).join('')||'<div class="help">저장된 장면이 없어요</div>'}</div></div>`;
+  m.classList.add('show');
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){const m=document.getElementById('modal');if(m)m.classList.remove('show');}});
 function renderPanel(){
   $$('#tabs [data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===ui.tab));
   const p=$('#pbody');
@@ -594,6 +622,7 @@ document.addEventListener('click',e=>{
     case 'record':{const sc=curScene();if(!ui.armed&&!Object.keys(sc.bg).length&&!Object.keys(sc.pin).length){toast('켜진 조명이 없어요. LOCATE로 먼저 켜세요');break;}ui.armed=!ui.armed;ui.delArmed=false;renderPanel();renderFaders();break;}
     case 'delete':ui.delArmed=!ui.delArmed;ui.armed=false;renderPanel();renderFaders();break;
     case 'cue-play':playCue(i);break;
+    case 'ch-view':openView(i);break;
     case 'cue-up':if(i>0){const t=s.cues.splice(i,1)[0];s.cues.splice(i-1,0,t);ui.cueIdx=-1;touch();renderPanel();}break;
     case 'cue-down':if(i<s.cues.length-1){const t=s.cues.splice(i,1)[0];s.cues.splice(i+1,0,t);ui.cueIdx=-1;touch();renderPanel();}break;
     case 'cue-ins':s.cues.splice(i+1,0,{id:uid(),text:'',lv:{}});touch();renderPanel();{const el=document.querySelector(`.cuetext[data-i="${i+1}"]`);if(el)el.focus();}break;
